@@ -1,16 +1,27 @@
-import React, { Component } from 'react'
-import { BrowserRouter as Router, Switch, Routes, Route, Link } from 'react-router-dom';
-import Navbar from './components/navbar';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link
+} from "react-router-dom";
 import Employees from "./components/employees"
+import SingleEmployee from "./components/singleEmployee"
+import Navbar from "./components/navbar"
 
-class App extends Component {
-  render() {
-    return (
+export default function App() {
+  return (
+    <Router>
       <div>
-        <Employees />
+        <Navbar />
       </div>
-    );
-  }
+      <div>
+        <Routes>
+          <Route path="/employees" element={<Employees />} />
+          <Route path="/employees/:id" element={<SingleEmployee />} />
+        </Routes>
+      </div>
+    </Router>
+  );
 }
 
-export default App;
