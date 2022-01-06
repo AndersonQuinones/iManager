@@ -3,15 +3,11 @@ package com.Anderson.Manager.tool.controllers;
 import com.Anderson.Manager.tool.Models.Employee;
 import com.Anderson.Manager.tool.services.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -27,33 +23,32 @@ public class EmployeeController {
 
     @GetMapping(path = "/{id}")
     public Employee findById(@PathVariable Integer id) {
-        try {
-            Employee employee = service.findById(id);
-            return employee;
-        } catch (EntityNotFoundException exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
-        }
+        return service.findById(id);
     }
 
     @PostMapping
-    public Employee save(@Valid @RequestBody Employee employee) {
-        try {
-            return service.save(employee);
-        } catch (Exception exception) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage(), exception);
-        }
+    public Map<String, String> save(@Valid @RequestBody Employee.Creation creation) {
+        Integer id = service.save(creation);
+        Map<String, String> response = new HashMap<String, String>();
+
+        response.put("message", "Success");
+        response.put("id", id.toString());
+
+        return response;
     }
 
     @PutMapping(path = "/{id}")
-    public Employee update(
+    public Map<String, String> update(
             @PathVariable Integer id,
-            @Valid @RequestBody Employee employee
+            @Valid @RequestBody Employee.Creation creation
     ) {
-        try {
-            return service.update(id, employee);
-        } catch (Exception exception) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage(), exception);
-        }
+        service.update(id, creation);
+
+        Map<String, String> response = new HashMap<String, String>();
+
+        response.put("message", "Success");
+
+        return response;
     }
 
     @DeleteMapping(path = "/{id}")
@@ -67,16 +62,8 @@ public class EmployeeController {
         return response;
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return errors;
+    @GetMapping("/levels")
+    public List<Employee.Level> getValidLevels() {
+        return Employee.Level.ALL;
     }
 }
